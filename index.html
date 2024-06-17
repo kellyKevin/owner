@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fetch and Display Carts</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            background: url('images/bck.png') no-repeat center center fixed ;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .carts-container {
+            margin-top: 20px;
+        }
+
+        .cart {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background-color: #f9f9f9;
+        }
+
+        .cart h3 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .cart img {
+            display: block;
+            margin: 10px auto;
+            max-width: 100px;
+            height: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="carts-container" id="cartsContainer">
+            <!-- Cart items will be inserted here -->
+        </div>
+    </div>
+
+    <!-- Firebase JavaScript SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.18.0/firebase-app.js';
+        import { getFirestore, collection, getDocs } from 'https://www.gstatic.com/firebasejs/9.18.0/firebase-firestore.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBUZJDLktz7qBHUPj_XtPybxz3vkz5cYlQ",
+            authDomain: "seedlingsweb-b6e5e.firebaseapp.com",
+            projectId: "seedlingsweb-b6e5e",
+            storageBucket: "seedlingsweb-b6e5e.appspot.com",
+            messagingSenderId: "1042431917002",
+            appId: "1:1042431917002:web:ebea14cb0326379967ed33",
+            measurementId: "G-JVWHZPDJX7"
+        };
+
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Function to fetch and display carts
+        async function fetchAndDisplayCarts() {
+            const cartsContainer = document.getElementById('cartsContainer');
+            cartsContainer.innerHTML = ''; // Clear the container before adding new carts
+
+            try {
+                const cartsSnapshot = await getDocs(collection(db, 'carts'));
+                cartsSnapshot.forEach((doc) => {
+                    const cart = doc.data();
+                    const items = cart.items || []; // Check if items array exists
+
+                    items.forEach((item, index) => {
+                        const cartElement = document.createElement('div');
+                        cartElement.className = 'cart';
+                        cartElement.innerHTML = `
+                            <h3>${item.name || 'N/A'}</h3>
+                            <p><strong>ID:</strong> ${item.id || 'N/A'}</p>
+                            <img src="${item.image || ''}" alt="${item.name || 'Image'}">
+                            <p><strong>Price:</strong> $${item.price || 'N/A'}</p>
+                            <p><strong>Quantity:</strong> ${item.quantity || 'N/A'}</p>
+                            <p><strong>Added By:</strong> ${item.addedBy || 'N/A'}</p>
+                        `;
+                        cartsContainer.appendChild(cartElement);
+                    });
+                });
+            } catch (error) {
+                console.error('Error fetching carts: ', error);
+            }
+        }
+
+        // Fetch and display carts on initial load
+        fetchAndDisplayCarts();
+    </script>
+</body>
+
+</html>
